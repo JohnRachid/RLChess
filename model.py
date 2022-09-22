@@ -73,7 +73,6 @@ class DQN(nn.Module):
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
         x = self.encode_tensor(x)
-        x = torch.from_numpy(x.astype('complex64'))
         x = x.to(device)
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
@@ -81,6 +80,8 @@ class DQN(nn.Module):
         return self.head(x.view(x.size(0), -1))
 
     def encode_tensor(self,x):
+        #need to custom right a dict that maps to ints for each gamestate. can use an approach similiar to two sum on leet code
+        # need to be mindful of memory space
         le = preprocessing.LabelEncoder()
         targets = le.fit_transform(x)
         targets = torch.as_tensor(targets)
