@@ -82,6 +82,7 @@ class DQN(nn.Module):
     def encode_tensor(self,x):
         #need to custom right a dict that maps to ints for each gamestate. can use an approach similiar to two sum on leet code
         # need to be mindful of memory space
+        x = [chess_board.get_move(i) for i in x] #converts every element in x to a string [Move.from_uci('g1h3'), Move.from_uci('g1f3'), ...)
         le = preprocessing.LabelEncoder()
         targets = le.fit_transform(x)
         targets = torch.as_tensor(targets)

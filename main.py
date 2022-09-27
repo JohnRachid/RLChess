@@ -3,8 +3,6 @@ import chess.svg
 import chess.engine
 
 
-
-
 class chess_board:
 
     def __init__(self,):
@@ -19,6 +17,9 @@ class chess_board:
 
     def current_board_state(self):
         return self.chess_board
+
+    def get_move(self, move):
+        return move.uci()
 
     def move(self,int_move_to_take):
        move = list(self.chess_board.legal_moves)[int_move_to_take]
