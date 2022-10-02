@@ -52,6 +52,7 @@ class ReplayMemory(object):
 class DQN(nn.Module):
 
     def __init__(self, h, w, outputs):
+
         super(DQN, self).__init__()
         self.conv1 = nn.Conv2d(3, 16, kernel_size=5, stride=2)
         self.bn1 = nn.BatchNorm2d(16)
@@ -100,9 +101,14 @@ TARGET_UPDATE = 10
 # which is the result of a clamped and down-scaled render buffer in get_screen()
 chess_board = chess_board()
 
-input_width = 8
-input_height = 8
-print(input_height)
+current_board_state = chess_board.current_board_state()
+input_width = len(current_board_state)
+input_height = len(current_board_state[0])
+
+print("input_width", input_width)
+print("input_height", input_height)
+print(chess_board.current_board_state())
+
 # Get number of actions from gym action space
 n_actions = len(list(chess_board.get_legal_moves()))
 
@@ -129,6 +135,7 @@ def select_action(state):
             # t.max(1) will return largest column value of each row.
             # second column on max result is index of where max element was
             # found, so we pick action with the larger expected reward.
+            print("sample", sample)
             return policy_net(state).max(1)[1].view(1, 1)
     else:
         return torch.tensor([[random.randrange(n_actions)]], device=device, dtype=torch.long)
@@ -214,6 +221,7 @@ for i_episode in range(num_episodes):
     print("state", state)
     for t in count():
         # Select and perform an action
+        print("state", state)
         action = select_action(state)
         print("action", action)
         print("action.item", action.item())

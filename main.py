@@ -1,7 +1,7 @@
 import chess
 import chess.svg
 import chess.engine
-
+import numpy as np
 
 class chess_board:
 
@@ -10,13 +10,18 @@ class chess_board:
         self.engine = chess.engine.SimpleEngine.popen_uci("C:\\Users\\Desktop\\PycharmProjects\\RLChess\\stockfish_15_x64_avx2.exe")
 
     def render_board(self):
-        chess.svg.board(self.chess_board)
+        chess.svg.board(self.chess_board).__str__()
 
     def reset_board(self):
         self.chess_board.reset()
 
     def current_board_state(self):
-        return self.chess_board
+        string_board = list(self.chess_board.__str__())
+        print(string_board)
+        board_arr = np.asarray(string_board, dtype='str')
+        print(board_arr.reshape((8,16)))
+
+        return board_arr
 
     def get_move(self, move):
         return move.uci()
@@ -34,6 +39,7 @@ class chess_board:
 if __name__ == '__main__':
     chess_board = chess_board()
     chess_board.render_board()
-    print(chess_board.chess_board)
+    print(chess_board.current_board_state())
+    # print(chess_board.chess_board)
     print(chess_board.get_legal_moves())
 
