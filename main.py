@@ -16,10 +16,16 @@ class chess_board:
         self.chess_board.reset()
 
     def current_board_state(self):
+        print(self.chess_board)
+        # remove every other line to remove the spacing on the string representation
         string_board = list(self.chess_board.__str__())
+        sliced_board = string_board[::2]
         print(string_board)
-        board_arr = np.asarray(string_board, dtype='str')
-        print(board_arr.reshape((8,16)))
+        print(sliced_board)
+        board_arr = np.asarray(sliced_board, dtype='str')
+        board_arr = board_arr.reshape((8,8))
+        print(board_arr)
+        #board now represents a proper chessboard
 
         return board_arr
 
