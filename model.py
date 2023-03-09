@@ -54,11 +54,13 @@ class DQN(nn.Module):
     def __init__(self, h, w, outputs):
 
         super(DQN, self).__init__()
-        self.conv1 = nn.Conv2d(3, 16, kernel_size=5, stride=2)
+        self.conv1 = nn.Conv2d(8, 8, kernel_size=8, stride=2)
         self.bn1 = nn.BatchNorm2d(16)
-        self.conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=2)
+        self.conv2 = nn.Conv2d(6, 6, kernel_size=4, stride=2)
         self.bn2 = nn.BatchNorm2d(32)
-        self.conv3 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
+        self.conv3 = nn.Conv2d(4, 4, kernel_size=2, stride=2)
+        self.bn3 = nn.BatchNorm2d(32)
+        self.conv3 = nn.Conv2d(4, 4, kernel_size=2, stride=2)
         self.bn3 = nn.BatchNorm2d(32)
 
         # Number of Linear input connections depends on output of conv2d layers
@@ -81,9 +83,12 @@ class DQN(nn.Module):
         return self.head(x.view(x.size(0), -1))
 
     def encode_tensor(self,x):
-        #need to custom right a dict that maps to ints for each gamestate. can use an approach similiar to two sum on leet code
+        #need to custom write a dict that maps to ints for each gamestate. can use an approach similiar to two sum on leet code
         # need to be mindful of memory space
-        x = [chess_board.get_move(i) for i in x] #converts every element in x to a string [Move.from_uci('g1h3'), Move.from_uci('g1f3'), ...)
+        print("x",x)
+        current_actions = chess_board.get_legal_moves()
+        print("current_actions",current_actions)
+        x = [current_actions.get_move(i) for i in x] #converts every element in x to a string [Move.from_uci('g1h3'), Move.from_uci('g1f3'), ...)
         le = preprocessing.LabelEncoder()
         targets = le.fit_transform(x)
         targets = torch.as_tensor(targets)
@@ -124,7 +129,7 @@ memory = ReplayMemory(10000)
 steps_done = 0
 
 
-def select_action(state):
+def select_action(action,state):
     global steps_done
     sample = random.random()
     eps_threshold = EPS_END + (EPS_START - EPS_END) * \
@@ -135,7 +140,8 @@ def select_action(state):
             # t.max(1) will return largest column value of each row.
             # second column on max result is index of where max element was
             # found, so we pick action with the larger expected reward.
-            print("sample", sample)
+            print("select action sample", sample)
+            print("select action state",state)
             return policy_net(state).max(1)[1].view(1, 1)
     else:
         return torch.tensor([[random.randrange(n_actions)]], device=device, dtype=torch.long)
@@ -217,12 +223,13 @@ for i_episode in range(num_episodes):
     chess_board.reset_board()
     last_screen = chess_board.chess_board
     current_screen = chess_board.chess_board
-    state = list(chess_board.get_legal_moves())
+    state = chess_board.current_board_state
     print("state", state)
     for t in count():
         # Select and perform an action
+        # print(chess_board.current_board_state())
         print("state", state)
-        action = select_action(state)
+        action = select_action(chess_board.get_legal_moves(),state)
         print("action", action)
         print("action.item", action.item())
         reward, done, new_screen, n_actions = chess_board.move(action.item())
@@ -233,7 +240,7 @@ for i_episode in range(num_episodes):
         last_screen = current_screen
         current_screen = new_screen
         if not done:
-            next_state = list(chess_board.get_legal_moves())
+            next_state = list(chess_board.current_board_state())
         else:
             next_state = None
 
